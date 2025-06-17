@@ -1,0 +1,22 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    container_name: integrator_php
+    env_file: .env                         
+    working_dir: /usr/src/app
+    volumes:
+      - ./scripts:/usr/src/app
+    command: ["tail", "-f", "/dev/null"]
+
+
+
+# Użycie później:
+# 
+# docker compose exec php bash
+# php import_invoice.php 389252849
+# 
+# lub
+# docker compose exec php php import_invoice.php 389252849
