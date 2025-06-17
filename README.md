@@ -1,0 +1,1 @@
+# integrator-fakturownia-optima
