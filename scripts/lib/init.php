@@ -1,7 +1,7 @@
 <?php
 
 require  'Medoo.php';
-require  'dbg.php';
+require  'helpers.php';
 use Medoo\Medoo;
 
 $domain   = getenv('FAKTUROWNIA_DOMAIN')      ?: '';
