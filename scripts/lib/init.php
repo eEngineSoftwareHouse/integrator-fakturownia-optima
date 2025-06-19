@@ -2,7 +2,9 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 require 'helpers.php';
+require 'MedooMssql.php';
 use Medoo\Medoo;
+use Integrator\MedooMssql;
 
 $domain   = getenv('FAKTUROWNIA_DOMAIN')      ?: '';
 $apiToken = getenv('FAKTUROWNIA_API_TOKEN')   ?: '';
@@ -30,7 +32,7 @@ $dbMySql = new Medoo([
     'type' => 'mysql'
 ]);
 
-$dbSqlServer = new Medoo([
+$dbSqlServer = new MedooMssql([
     'pdo' => new PDO($optDsn,  $optUsr,  $optPwd, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]),
     'type' => 'mssql'
 ]);
