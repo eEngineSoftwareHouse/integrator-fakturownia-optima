@@ -38,6 +38,14 @@ function dbg(mixed $val)
     return $val;
 }
 
+/**
+ * Dopisuje identyfikator do pliku, jeśli nie występuje w nim jeszcze.
+ *
+ *  • plik jest tworzony automatycznie, gdy brak
+ *  • operacja blokuje plik na czas zapisu
+ *
+ * @throws RuntimeException gdy nie można otworzyć pliku
+ */
 function appendIdIfNew(string $path, string|int $id): void
 {
     // 'c+'  ➜   otwórz do R/W, utwórz plik jeśli nie istnieje
@@ -80,7 +88,7 @@ function appendIdIfNew(string $path, string|int $id): void
  * Akceptuje:
  *   DK37538795   DK 37538795   37538795
  *
- * @throws InvalidArgumentException – gdy format nie pasuje
+ * Zwraca tablicę z pustymi wartościami, jeśli numer ma zły format.
  */
 function splitVatId(string $raw): array
 {
