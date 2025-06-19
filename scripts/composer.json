@@ -1,0 +1,7 @@
+{
+    "name": "eengine/integrator-fakturownia-optima",
+    "description": "Integrator Fakturownia ↔ Optima",
+    "require": {
+        "catfan/medoo": "^2.2"
+    }
+}

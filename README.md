@@ -4,7 +4,7 @@ Projekt pozwala na import faktur oraz kontrahentów z systemu [Fakturownia](http
 
 ## Cel projektu i zależności
 
-Integrator pobiera dane z Fakturowni i zapisuje je do bazy Comarch ERP Optima. Środowisko działa w kontenerze wykorzystując obraz `namoshek/php-mssql:8.3-cli` z doinstalowanym `pdo_mysql` oraz biblioteką [Medoo](https://medoo.in).
+Integrator pobiera dane z Fakturowni i zapisuje je do bazy Comarch ERP Optima. Środowisko działa w kontenerze wykorzystując obraz `namoshek/php-mssql:8.3-cli` z doinstalowanym `pdo_mysql`.  Biblioteka [Medoo](https://medoo.in) jest instalowana poprzez Composer.
 
 
 ## Wymagania
@@ -24,6 +24,12 @@ Integrator pobiera dane z Fakturowni i zapisuje je do bazy Comarch ERP Optima. �
 
 ```bash
 ./init.sh
+```
+
+3. Zainstaluj zależności PHP (wymagany Composer):
+
+```bash
+docker compose exec php composer install
 ```
 
 
