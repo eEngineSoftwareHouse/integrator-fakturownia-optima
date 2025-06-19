@@ -19,7 +19,7 @@ if [[ -s "$INVOICES" ]]; then
         tail -n +2 "$INVOICES.tmp" > "$INVOICES.tmp2"
         mv "$INVOICES.tmp2" "$INVOICES.tmp"
         
-        echo "faktura.php $invoice_id"
+        # echo "faktura.php $invoice_id"
         docker compose exec php php faktura.php "$invoice_id"
     done
 
@@ -39,7 +39,7 @@ if [[ -s "$CUSTOMERS" ]]; then
         tail -n +2 "$CUSTOMERS.tmp" > "$CUSTOMERS.tmp2"
         mv "$CUSTOMERS.tmp2" "$CUSTOMERS.tmp"
 
-        echo "kontrahent.php $customer_nip"
+        # echo "kontrahent.php $customer_nip"
         docker compose exec php php kontrahent.php $customer_nip
     done
 

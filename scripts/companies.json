@@ -1,12 +1,12 @@
 [
-    { "NIP": "7322207035", "status": 0, "beginning_date": "2025-05-01", "DATABASE": "CDN_DIGITAL" },
+    { "NIP": "7322207035", "status": 1, "beginning_date": "2025-05-01", "DATABASE": "CDN_DIGITAL" },
     { "NIP": "7322169961", "status": 1, "beginning_date": "2025-05-01", "DATABASE": "CDN_EENGINE" },
     { "NIP": "7322194315", "status": 1, "beginning_date": "2025-05-01", "DATABASE": "CDN_EENGINE_PL" },
     { "NIP": "7322204373", "status": 1, "beginning_date": "2025-05-01", "DATABASE": "CDN_EE_DIAMONDS" },
     { "NIP": "7322207615", "status": 1, "beginning_date": "2025-05-01", "DATABASE": "CDN_GALANTE_WYPIEKI" },
     { "NIP": "7322199583", "status": 1, "beginning_date": "2025-05-01", "DATABASE": "CDN_PERSEIDS" },
-    { "NIP": "7262214183", "status": 0, "beginning_date": "2025-05-01", "DATABASE": "CDN_WALASZEK_PL" },
-    { "NIP": "7322207495", "status": 0, "beginning_date": "2025-05-01", "DATABASE": "CDN_WORKOUT_PLACE" },
+    { "NIP": "7262214183", "status": 1, "beginning_date": "2025-05-01", "DATABASE": "CDN_WALASZEK_PL" },
+    { "NIP": "7322207495", "status": 1, "beginning_date": "2025-05-01", "DATABASE": "CDN_WORKOUT_PLACE" },
     { "NIP": "7322203445", "status": 0 },
     { "NIP": "7322195409", "status": 0 }
 

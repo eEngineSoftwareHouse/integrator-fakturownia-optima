@@ -25,8 +25,10 @@ if ($inv['id'] != $invoiceId) {
     exit(1);
 }
 
-if (!$database = $companies[$inv['seller_tax_no']]['DATABASE']) {
-    fwrite(STDERR, "Nie zdefiniowano nazwy bazy dla firmy NIP: {$inv['seller_tax_no']}\n");
+$nipArr = splitVatId($inv['seller_tax_no']);
+$nip = $nipArr['number'];
+if (!$database = $companies[$nip]['DATABASE']) {
+    fwrite(STDERR, "Nie zdefiniowano nazwy bazy w .env dla firmy NIP: {$nip}\n");
     exit(1);
 }
 // dbg($database);return;
@@ -72,33 +74,34 @@ try {
         $income    = !empty($inv['income']);               // true = sprzedaż
         $kind      = $inv['kind'];                         // np. "vat", "proforma"
         $sellerNip = trim($inv['seller_tax_no'] ?? '');    // NipSprzedawcy
-        $buyerNip  = trim($inv['buyer_tax_no']  ?? '');    // NipKlienta
+        $buyerNip  = splitVatId(trim($inv['buyer_tax_no']  ?? ''));    // NipKlienta
         $clientId  = $inv['client_id'] ?? '';              // IdKlienta (gdy brak NIP)
 
-        $kindList = ['final', 'vat'];
-        if (!in_array($kind, $kindList, true) || $sellerNip == '') {
+        // $kindList = ['final', 'vat'];
+        $kindList = ['vat'];
+        if (!in_array($kind, $kindList, true)) {
             fwrite(STDERR, "Faktura {$inv['number']} jest typu {$kind}\n");
             return;                                        // zmieniono rodzaj lub NIP sprzedawcy
         }
 
         /* wybór rejestru i kontrahenta */
-        if ($buyerNip !== '' && ctype_alpha($buyerNip[0]) && !str_contains($buyerNip, '.')) {
+        if ($buyerNip['pure'] !== '' && $buyerNip['country'] != '' && $buyerNip['country'] != 'PL') {
             // zagraniczny NIP (prefiks literowy)  →  RZ_02
-            $nipCore  = substr(str_replace(' ', '', $buyerNip), 2);
             $register = $income ? 'SPRZEDAZ' : 'RZ_02';
-            $kntId = (int)$dbSqlServer->get("CDN.Kontrahenci", 'Knt_KntId', ['Knt_Nip' => $nipCore]) ?? 0;
-        } elseif ($buyerNip === '') {
+            $kntId = (int)$dbSqlServer->get("CDN.Kontrahenci", 'Knt_KntId', ['Knt_Kod' => $buyerNip['pure']]) ?? 0;
+        } elseif ($buyerNip['number'] === '') {
             // brak NIP  →  szukamy po telefonSms = IdKlienta
             $register = $income ? 'SPRZEDAZ' : 'RZ_02';
             $kntId = (int)$dbSqlServer->get("CDN.Kontrahenci", 'Knt_KntId', ['Knt_TelefonSms' => $clientId]) ?? 0;
         } else {
             // zwykły krajowy NIP  →  RZ_01
             $register = $income ? 'SPRZEDAZ' : 'RZ_01';
-            $kntId = (int)$dbSqlServer->get("CDN.Kontrahenci", 'Knt_KntId', ['Knt_Nip' => $buyerNip]) ?? 0;
+            $kntId = (int)$dbSqlServer->get("CDN.Kontrahenci", 'Knt_KntId', ['Knt_Kod' => $buyerNip['number']]) ?? 0;
         }
 
-        if ($kntId === 0) {
-            fwrite(STDERR, "Brak kontrahenta w {$database} dla NIP: {$buyerNip}\n");
+        if ($kntId === 0 && $buyerNip['pure'] != '') {
+            dbg($buyerNip);
+            fwrite(STDERR, "Brak kontrahenta w {$database} dla NIP: {$buyerNip['pure']}\n");
 
             appendIdIfNew($fileInvoicesId, $inv['id']);
             // file_put_contents(
@@ -107,7 +110,7 @@ try {
             //         FILE_APPEND | LOCK_EX                   // APPEND = dopisz, utwórz jeśli brak; LOCK_EX = nie koliduj z innym procesem
             //     );
 
-            appendIdIfNew($fileCustomersNIP, "{$database} {$buyerNip}");
+            appendIdIfNew($fileCustomersNIP, "{$database} {$buyerNip['pure']}");
             // file_put_contents(
             //         $fileCustomersNIP,
             //         $buyerNip . PHP_EOL,                  // zawsze osobna linia
@@ -115,6 +118,9 @@ try {
             //     );
             return;
         }
+        
+        // dbg($inv);
+        
 
         /* sprawdzenie duplikatu (VaNDokument + VaN_PodId) */
         $VaN_VaNID = $dbSqlServer->get("CDN.VatNag", 'VaN_VaNID', [
@@ -139,9 +145,9 @@ try {
 
         $now = Medoo\Medoo::raw('GETDATE()');
         $rokMies = (int)date('Ym', strtotime($sellDate));
-        $razemNetto  = $inv['price_net'];
-        $razemVat    = $inv['price_gross'] - $inv['price_net'];
-        $razemBrutto = $inv['price_gross'];
+        $razemNetto  = $inv['price_net'] * $inv['exchange_rate'];
+        $razemVat    = ($inv['price_gross'] - $inv['price_net']) * $inv['exchange_rate'];
+        $razemBrutto = $inv['price_gross'] * $inv['exchange_rate'];
 
         $knt = $dbSqlServer->get(
             "CDN.Kontrahenci", [
@@ -153,6 +159,8 @@ try {
             ], [
                 'Knt_KntId' => $kntId
             ]);
+
+        // dbg($knt); dbg($buyerNip);
 
         /* ---------- 3. INSERT do VatNag ---------- */
         $dbSqlServer->insert(
@@ -170,7 +178,7 @@ try {
                 /* podstawowe daty */
                 'VaN_DataObowiazkuPodatkowego' => $sellDate,
                 'VaN_DataPrawaOdliczenia'      => $sellDate,
-                'VaN_DataZap'                  => $sellDate,
+                'VaN_DataZap'                  => $inv['delivery_date'] ?: $inv['sell_date'],        # delivery_date
                 'VaN_DataWys'                  => $sellDate,
 
                 /* kursy i deklaracje – integrator ustawia 1/0 */
@@ -334,8 +342,8 @@ try {
         $lp = 1;                                    // numeracja pozycji w deklaracji
 
         foreach ($positions as $p) {
-            $netto = $p['total_price_net'];               // netto pozycji
-            $vat   = $p['total_price_gross'] - $netto;    // VAT pozycji
+            $netto = $p['total_price_net'] * $inv['exchange_rate'];               // netto pozycji
+            $vat   = ($p['total_price_gross'] - $netto) * $inv['exchange_rate'];    // VAT pozycji
 
             /* stawka symboliczna zgodna z Optimą */
             $stawkaSymbol = $p['vat_rate'] == 0.0
@@ -390,10 +398,10 @@ try {
 
 /**
  * ToDo:
- * 1. Obsługa faktur walutowych
+ * 1. DONE - Obsługa faktur walutowych (do weryfikacji)
  * 2. DONE - Tworzenie kontrahentów i ich aktualizacja(?)
  * 3. Aktualizacja danych na fakturach w fakturowni (zapisanie w optimie id faktury i pozycji), zabezpieczenie, aby nie modyfikować 
- *    już rozliczonych faktur (niebieskie w Optimie). Pole VaT_DekID wiąże fakturę z CDN.DekretyNag i jeżeli istnieje powiązane,
+ *    już rozliczonych faktur (niebieskie w Optimie). Pole VaN_DekID wiąże fakturę z CDN.DekretyNag i jeżeli istnieje powiązane,
  *    to należy taką fakturę pozostawić już w spokoju (integrator nie powinien jej dotykać)
  * 4. Przypisywanie kategorii (VaN_KatID, VaN_Kategoria)
  * 5. Obsługa faktur korygujących (VaN_DokumentyNadrzedne, VaN_KorektaDo, VaN_Korekta)

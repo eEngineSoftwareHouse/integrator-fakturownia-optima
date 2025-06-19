@@ -85,26 +85,27 @@ function appendIdIfNew(string $path, string|int $id): void
 function splitVatId(string $raw): array
 {
     $raw  = trim($raw);
-    $pure = preg_replace('/\s+/', '', $raw);   // wywal wszystkie białe znaki
+    $pure = preg_replace('/\s+/', '', $raw);        // bez białych znaków
 
-    // A) prefiks kraju + (opcjonalne spacje) + cyfry
-    if (preg_match('/^([A-Z]{2})\s*(\d+)$/i', $raw, $m)) {
+    // A) prefiks kraju + (opcjonalne spacje) + cyfry **lub** litery
+    //    IE6364992H, DE123456789, FR 12 345 678 912, itp.
+    if (preg_match('/^([A-Z]{2})\s*([A-Z0-9]+)$/i', $raw, $m)) {
         return [
             'country' => strtoupper($m[1]),
-            'number'  => $m[2],
-            'pure'    => $pure,
+            'number'  => strtoupper($m[2]),         // litery na wypadek IE
+            'pure'    => strtoupper($pure),
         ];
     }
 
-    // B) same cyfry
-    if (preg_match('/^\d+$/', $raw)) {
+    // B) brak prefiksu – same cyfry (kraj domyślny)
+    if (preg_match('/^\d+$/', $pure)) {
         return [
             'country' => '',
-            'number'  => $pure,   // tu pure == number
+            'number'  => $pure,
             'pure'    => $pure,
         ];
     }
 
-    return ['country' => '', 'number' => '', 'pure' => '' ];
-    // throw new InvalidArgumentException("Niepoprawny format NIP/VAT ID: $raw");
+    // niepoprawny format
+    return ['country' => '', 'number' => '', 'pure' => ''];
 }

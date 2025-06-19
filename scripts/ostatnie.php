@@ -15,40 +15,37 @@
 
 require_once __DIR__ . '/lib/init.php';
 
-
-// foreach($companies as $k => $company) {
-//     if ($company['status']) {
-//         $dbSqlServer->pdo->exec("USE [{$company['DATABASE']}];");
-//         $company["updated_at_1"] = $dbSqlServer->max("CDN.VatNag_fakturownia", 'fakturownia_updated_at', [' fakturownia_income' => 1 ]);
-//         $company["updated_at_0"] = $dbSqlServer->max("CDN.VatNag_fakturownia", 'fakturownia_updated_at', [' fakturownia_income' => 0 ]);
-//         $companies[$company['NIP']] = $company;
-//     }
-//     unset($companies[$k]);
-// }
-
 $faktury = array();
 
 foreach([0, 1] as $income) {
-    $page = 1;
-    $ile = 0;
-    for ($page = 1; $page <= $faktPageLimit; $page++)
-    {
+    for ($page = 1; $page <= $faktPageLimit; $page++) {
         $url = "https://{$domain}/invoices.json?period=all&api_token={$apiToken}&order=updated_at.desc&per_page=100&page={$page}&income={$income}";
+        $url = "https://{$domain}/invoices.json?period=all&api_token={$apiToken}&query=&kinds%5B%5D=vat&kinds%5B%5D=advance&kinds%5B%5D=final&kinds%5B%5D=correction&order=updated_at.desc&per_page=100&page={$page}&income={$income}";
+        // $url = "https://{$domain}/invoices.json?period=all&api_token={$apiToken}&query=1PL%2F7%2F05%2F2025&order=updated_at.desc&per_page=100&page={$page}&income={$income}";
+        // $url = "https://eengine.fakturownia.pl/invoices.json?period=all&api_token=aMljtq051l4alX2GTNw&query=PL%2F7%2F05%2F2025&order=updated_at.desc&per_page=100&page=1&income=1";
+
         // dbg($url);
         $json = @file_get_contents($url);
         $json_data = json_decode($json, true);
 
         foreach($json_data as $faktura) { 
-            if (isset($companies[$faktura['seller_tax_no']]))
-            {
-                $dbSqlServer->pdo->exec("USE [{$companies[$faktura['seller_tax_no']]['DATABASE']}];");
+            // dbg($faktura);
+            $nipArr = splitVatId($faktura['seller_tax_no']);
+            $nip = $nipArr['number'];
 
-                $updated_at_in_optima = $dbSqlServer->get("CDN.VatNag_fakturownia", 'fakturownia_updated_at', [ 'fakturownia_invoice_id' => $faktura["id"] ]) ?: date('Y-m-d', strtotime($companies[$faktura['seller_tax_no']]['beginning_date']));
+            if (isset($companies[$nip]))
+            {
+                // dbg();
+                // dbg($faktura);
+
+                $dbSqlServer->pdo->exec("USE [{$companies[$nip]['DATABASE']}];");
+
+                $updated_at_in_optima = $dbSqlServer->get("CDN.VatNag_fakturownia", 'fakturownia_updated_at', [ 'fakturownia_invoice_id' => $faktura["id"] ]) ?: date('Y-m-d', strtotime($companies[$nip]['beginning_date'])-86400);
 
                 // dbg([ date('Y-m-d H:i:s', strtotime($faktura['updated_at'])), date('Y-m-d H:i:s', strtotime($updated_at_in_optima)) ]);
                 if (
                     date('Y-m-d H:i:s', strtotime($faktura['updated_at'])) > date('Y-m-d H:i:s', strtotime($updated_at_in_optima))                              # faktura zaktualizowana
-                    && date('Y-m-d', strtotime($faktura['issue_date'])) >= date('Y-m-d', strtotime($companies[$faktura['seller_tax_no']]['beginning_date']))    # faktura w zakresie zainteresowań
+                    && date('Y-m-d', strtotime($faktura['delivery_date'] ?: $faktura['sell_date'])) >= date('Y-m-d', strtotime($companies[$nip]['beginning_date']))    # faktura w zakresie zainteresowań
                     ) {
                         $faktury[] = $faktura['id'];
                         appendIdIfNew($fileInvoicesId, $faktura['id']);
