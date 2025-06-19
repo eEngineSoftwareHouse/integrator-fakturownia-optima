@@ -5,4 +5,9 @@
 
 docker compose build
 docker compose up -d
-docker compose exec php composer install --no-interaction
+
+# Install dependencies inside the PHP container if they are not present
+if [ ! -d scripts/vendor ]; then
+    docker compose exec php composer install --no-interaction
+fi
+

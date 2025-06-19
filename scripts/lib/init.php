@@ -1,7 +1,7 @@
 <?php
 
-require  'Medoo.php';
-require  'helpers.php';
+require __DIR__ . '/../vendor/autoload.php';
+require 'helpers.php';
 use Medoo\Medoo;
 
 $domain   = getenv('FAKTUROWNIA_DOMAIN')      ?: '';
