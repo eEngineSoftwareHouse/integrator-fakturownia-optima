@@ -20,7 +20,8 @@ Integrator pobiera dane z Fakturowni i zapisuje je do bazy Comarch ERP Optima. �
    - `FAKTUROWNIA_API_TOKEN` – token API
    - `OPTIMADB_DSN`, `OPTIMADB_USER`, `OPTIMADB_PASS` – dane do połączenia z bazą Optimy
    - ścieżki do plików `companies.json`, `invoices.txt`, `customers.txt`
-2. Zbuduj oraz uruchom kontener:
+2. Uruchom `./init.sh`, który zbuduje kontener,
+   zainstaluje zależności PHP i uruchomi środowisko:
 
 ```bash
 ./init.sh
@@ -78,7 +79,7 @@ docker compose exec php php kontrahent.php <BAZA> <NIP>
 .
 ├── Dockerfile
 ├── docker-compose.yml
-├── init.sh           # buduje i uruchamia środowisko
+├── init.sh           # buduje, instaluje zależności i uruchamia środowisko
 ├── process_invoices.sh
 └── scripts/
     ├── faktura.php   # import pojedynczej faktury
