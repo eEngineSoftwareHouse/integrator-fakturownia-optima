@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 # Uruchom na początku, aby zbudować kontener (środowisko uruchomieniowe)
 
