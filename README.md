@@ -2,6 +2,11 @@
 
 Projekt pozwala na import faktur oraz kontrahentów z systemu [Fakturownia](https://fakturownia.pl/) do bazy programu [Comarch ERP Optima](https://www.comarch.pl/erp/comarch-optima/).
 
+## Cel projektu i zależności
+
+Integrator pobiera dane z Fakturowni i zapisuje je do bazy Comarch ERP Optima. Środowisko działa w kontenerze wykorzystując obraz `namoshek/php-mssql:8.3-cli` z doinstalowanym `pdo_mysql` oraz biblioteką [Medoo](https://medoo.in).
+
+
 ## Wymagania
 
 * Docker z obsługą `docker compose`
@@ -21,7 +26,24 @@ Projekt pozwala na import faktur oraz kontrahentów z systemu [Fakturownia](http
 ./init.sh
 ```
 
+
+## Zmienne środowiskowe (.env)
+
+| Nazwa | Opis |
+| ----- | ---- |
+| `FAKTUROWNIA_DOMAIN` | adres instancji Fakturowni |
+| `FAKTUROWNIA_API_TOKEN` | token API |
+| `FAKTUROWNIA_INVOICE_PAGE_LIMIT` | liczba stron pobieranych przez `ostatnie.php` |
+| `OPTIMADB_DSN` | DSN do bazy SQL Server |
+| `OPTIMADB_USER` | nazwa użytkownika SQL Server |
+| `OPTIMADB_PASS` | hasło do SQL Server |
+| `COMPANIES` | ścieżka do `companies.json` |
+| `FILE_INVOICES_ID` | plik z ID faktur do importu |
+| `FILE_CUSTOMERS_NIP` | plik z numerami NIP kontrahentów |
+| `FAKTUROWNIADB_DSN`, `FAKTUROWNIADB_USER`, `FAKTUROWNIADB_PASS` | opcjonalne dane do bazy MySQL Fakturowni |
+
 ## Użycie
+Skrypty uruchamiamy za pośrednictwem `docker compose exec php`.
 
 * Pobranie ostatnich faktur i utworzenie listy do importu:
 
