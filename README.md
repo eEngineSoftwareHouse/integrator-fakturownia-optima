@@ -1,6 +1,6 @@
 # Integrator Fakturownia ↔ Optima
 
-Ten projekt pozwala na import faktur oraz kontrahentów z systemu [Fakturownia](https://fakturownia.pl/) do bazy programu Comarch Optima.
+Projekt pozwala na import faktur oraz kontrahentów z systemu [Fakturownia](https://fakturownia.pl/) do bazy programu [Comarch ERP Optima](https://www.comarch.pl/erp/comarch-optima/).
 
 ## Wymagania
 

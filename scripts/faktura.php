@@ -100,7 +100,7 @@ try {
         }
 
         if ($kntId === 0 && $buyerNip['pure'] != '') {
-            dbg($buyerNip);
+            // dbg($buyerNip);
             fwrite(STDERR, "Brak kontrahenta w {$database} dla NIP: {$buyerNip['pure']}\n");
 
             appendIdIfNew($fileInvoicesId, $inv['id']);
