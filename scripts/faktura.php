@@ -396,13 +396,3 @@ try {
 
 
 
-/**
- * ToDo:
- * 1. DONE - Obsługa faktur walutowych (do weryfikacji)
- * 2. DONE - Tworzenie kontrahentów i ich aktualizacja(?)
- * 3. Aktualizacja danych na fakturach w fakturowni (zapisanie w optimie id faktury i pozycji), zabezpieczenie, aby nie modyfikować 
- *    już rozliczonych faktur (niebieskie w Optimie). Pole VaN_DekID wiąże fakturę z CDN.DekretyNag i jeżeli istnieje powiązane,
- *    to należy taką fakturę pozostawić już w spokoju (integrator nie powinien jej dotykać)
- * 4. Przypisywanie kategorii (VaN_KatID, VaN_Kategoria)
- * 5. Obsługa faktur korygujących (VaN_DokumentyNadrzedne, VaN_KorektaDo, VaN_Korekta)
- */
