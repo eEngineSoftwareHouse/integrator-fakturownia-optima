@@ -99,23 +99,14 @@ try {
             $kntId = (int)$dbSqlServer->get("CDN.Kontrahenci", 'Knt_KntId', ['Knt_Kod' => $buyerNip['number']]) ?? 0;
         }
 
-        if ($kntId === 0 && $buyerNip['pure'] != '') {
+        if ($kntId === 0) {
             // dbg($buyerNip);
-            fwrite(STDERR, "Brak kontrahenta w {$database} dla NIP: {$buyerNip['pure']}\n");
+            fwrite(STDERR, "Brak kontrahenta w {$database} dla fakturownia.client_id: {$clientId}\n");
 
             appendIdIfNew($fileInvoicesId, $inv['id']);
-            // file_put_contents(
-            //         $fileInvoicesId,
-            //         $inv['id'] . PHP_EOL,                  // zawsze osobna linia
-            //         FILE_APPEND | LOCK_EX                   // APPEND = dopisz, utwórz jeśli brak; LOCK_EX = nie koliduj z innym procesem
-            //     );
 
-            appendIdIfNew($fileCustomersNIP, "{$database} {$buyerNip['pure']}");
-            // file_put_contents(
-            //         $fileCustomersNIP,
-            //         $buyerNip . PHP_EOL,                  // zawsze osobna linia
-            //         FILE_APPEND | LOCK_EX                   // APPEND = dopisz, utwórz jeśli brak; LOCK_EX = nie koliduj z innym procesem
-            //     );
+            appendIdIfNew($fileCustomersNIP, "{$database} {$clientId}");
+
             return;
         }
         
@@ -161,6 +152,9 @@ try {
             ]);
 
         // dbg($knt); dbg($buyerNip);
+
+        if (!isset($knt['Knt_Nazwa1']))
+            { dbg($clientId); die; }
 
         /* ---------- 3. INSERT do VatNag ---------- */
         $dbSqlServer->insert(

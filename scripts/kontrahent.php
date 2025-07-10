@@ -6,35 +6,33 @@
 require_once __DIR__ . '/lib/init.php';
 
 if ($argc < 3) {
-    fwrite(STDERR, "Użycie: php ".$argv[0]." <database> <NIP>\n");
+    fwrite(STDERR, "Użycie: php ".$argv[0]." <database> <client_id>\n");
     exit(1);
 }
 $database = $argv[1];
-$NIP = $argv[2];
+$client_id = (int)$argv[2];
 
-// print "> {$database} <> {$NIP} <\n";
-
-$url  = "https://{$domain}/clients.json?api_token={$apiToken}&tax_no={$NIP}";
+$url  = "https://{$domain}/clients/{$client_id}.json?api_token={$apiToken}";
 // dbg($url);
 
 $json = @file_get_contents($url);
 if ($json === false) {
-    fwrite(STDERR, "Nie udało się pobrać faktury z: $url\n");
+    fwrite(STDERR, "Nie udało się pobrać kontrahekontrahenta z: $url\n");
     exit(1);
 }
 
 $inv = json_decode($json, true);
 
-if (!$inv[0]) {
+// dbg($inv);
+
+if (!$inv) {
     fwrite(STDERR, "Błędna odpowiedź JSON z Fakturowni\n");
     exit(1);
 }
 
-// dbg($inv[0]);
-
 $dbSqlServer->pdo->exec("USE [{$database}];");
 
-$nip = splitVatId($inv[0]['tax_no']);
+$nip = splitVatId($inv['tax_no']);
 $nipPelny = $nip['pure'];
 $kntId = (int)$dbSqlServer->get(
     "CDN.Kontrahenci",
@@ -51,18 +49,30 @@ $sql = "EXEC CDN.Med_DodajKontrahenta
         @KodGrupyKnt=? , @StanDetalID=?";
 
 $params = [
-    $kntId, $nip['pure'], '', mb_strlen($inv[0]['name'], 'UTF-8') >= 50 ? mb_substr($inv[0]['name'], 0, 49, 'UTF-8') : $inv[0]['name'], '', '',
-    $inv[0]['country'], '', '', '', $inv[0]['street'],
-    $inv[0]['street_no'] ?: '', '', $inv[0]['city'], $inv[0]['post_code'], $inv[0]['city'],
+    $kntId, $nip['pure'] ?: mb_substr($inv['name'], 0, 19, 'UTF-8'), '', mb_strlen($inv['name'], 'UTF-8') >= 50 ? mb_substr($inv['name'], 0, 49, 'UTF-8') : $inv['name'], '', '',
+    $inv['country'], '', '', '', $inv['street'],
+    $inv['street_no'] ?: '', '', $inv['city'], $inv['post_code'], $inv['city'],
     '', $nip['country'], $nip['number'], $nip['number'], '', '',
     '', '', '', 1, date('Y-m-d H:i:s'), 
     '', 0
 ];
 
+// dbg($params);
+
 $stmt = $dbSqlServer->pdo->prepare($sql);
-$stmt->execute($params);
+// dbg($sql);
+$kntId_new = $stmt->execute($params);
+
+if ($kntId_new > 0)
+{
+    $dbSqlServer->update(
+            "CDN.Kontrahenci", 
+            [ "Knt_TelefonSms" => $client_id ],
+            [ "Knt_KntId" => $kntId_new]
+        );
+}
 
 if ($kntId == 0)
-    echo "✓ Utworzono konhtrahenta: NIP: {$nip['pure']}, Nazwa: {$inv[0]['name']}, w bazie: {$database}.\n";
+    echo "✓ Utworzono konhtrahenta: NIP: {$nip['pure']}, Nazwa: {$inv['name']}, w bazie: {$database}.\n";
 else
-    echo "✓ Zaktualizowano konhtrahenta: NIP: {$nip['pure']}, Nazwa: {$inv[0]['name']}, w bazie: {$database}.\n";
+    echo "✓ Zaktualizowano konhtrahenta: NIP: {$nip['pure']}, Nazwa: {$inv['name']}, w bazie: {$database}.\n";

@@ -19,10 +19,9 @@ $faktury = array();
 
 foreach([0, 1] as $income) {
     for ($page = 1; $page <= $faktPageLimit; $page++) {
-        $url = "https://{$domain}/invoices.json?period=all&api_token={$apiToken}&order=updated_at.desc&per_page=100&page={$page}&income={$income}";
+        // $url = "https://{$domain}/invoices.json?period=all&api_token={$apiToken}&order=updated_at.desc&per_page=100&page={$page}&income={$income}";
         $url = "https://{$domain}/invoices.json?period=all&api_token={$apiToken}&query=&kinds%5B%5D=vat&kinds%5B%5D=advance&kinds%5B%5D=final&kinds%5B%5D=correction&order=updated_at.desc&per_page=100&page={$page}&income={$income}";
         // $url = "https://{$domain}/invoices.json?period=all&api_token={$apiToken}&query=1PL%2F7%2F05%2F2025&order=updated_at.desc&per_page=100&page={$page}&income={$income}";
-        // $url = "https://eengine.fakturownia.pl/invoices.json?period=all&api_token=aMljtq051l4alX2GTNw&query=PL%2F7%2F05%2F2025&order=updated_at.desc&per_page=100&page=1&income=1";
 
         // dbg($url);
         $json = @file_get_contents($url);

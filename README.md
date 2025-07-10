@@ -100,6 +100,7 @@ Projekt udostępniany jest na licencji MIT. Szczegóły w pliku `LICENSE`.
    to należy taką fakturę pozostawić już w spokoju (integrator nie powinien jej dotykać)
 4. Przypisywanie kategorii (VaN_KatID, VaN_Kategoria)
 5. Obsługa faktur korygujących (VaN_DokumentyNadrzedne, VaN_KorektaDo, VaN_Korekta)
+6. Dołożyć tabele CDN.Kontrhenci_fakturownia, aby połączyć fakturowniany client_id z comarchowym Knt_KntId, aby obsłużyć w pełni aktualizowanie danych kontrahenta, bo teraz w zasadzie aktualizowanie kontrahenta nigdy się nie wykonuje, choć kod skryptu kontrahent.php przewiduje taką sytuację (tylko jeżeli klient ma w fakturowni wprowadzony NIP)
 
 ## Changelog
 
