@@ -9,7 +9,6 @@ services:
     working_dir: /usr/src/app
     volumes:
       - ./scripts:/usr/src/app
-    user: "${UID}:${GID}"
     command: ["tail", "-f", "/dev/null"]
 
 

@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Ensure Docker Compose has information about the invoking user
-export UID=${UID:-$(id -u)}
-export GID=${GID:-$(id -g)}
-
 # Uruchom na początku, aby zbudować kontener (środowisko uruchomieniowe)
 # oraz zainstalować zależności PHP
 
