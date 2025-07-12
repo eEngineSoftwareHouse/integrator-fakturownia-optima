@@ -21,7 +21,10 @@ Integrator pobiera dane z Fakturowni i zapisuje je do bazy Comarch ERP Optima. �
    - `OPTIMADB_DSN`, `OPTIMADB_USER`, `OPTIMADB_PASS` – dane do połączenia z bazą Optimy
    - ścieżki do plików `companies.json`, `invoices.txt`, `customers.txt`
 2. Uruchom `./init.sh`, który zbuduje kontener,
-   zainstaluje zależności PHP i uruchomi środowisko:
+   zainstaluje zależności PHP i uruchomi środowisko. Skrypt
+   automatycznie eksportuje zmienne `UID` i `GID`, aby pliki
+   tworzone w kontenerze miały tego samego właściciela co na
+   hoście (można je nadpisać przed uruchomieniem):
 
 ```bash
 ./init.sh
