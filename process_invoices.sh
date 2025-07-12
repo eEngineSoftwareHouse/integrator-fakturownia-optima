@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+export HOST_UID=$(id -u)
+export HOST_GID=$(id -g)
+
 INVOICES="scripts/invoices.txt"
 CUSTOMERS="scripts/customers.txt"
 

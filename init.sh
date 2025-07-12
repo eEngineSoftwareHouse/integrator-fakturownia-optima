@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export HOST_UID=$(id -u)
+export HOST_GID=$(id -g)
+
 # Uruchom na początku, aby zbudować kontener (środowisko uruchomieniowe)
 # oraz zainstalować zależności PHP
 
