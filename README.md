@@ -102,9 +102,9 @@ Projekt udostępniany jest na licencji MIT. Szczegóły w pliku `LICENSE`.
 3. DONE (już zbędne) - Brakuje kodu dodającego tabelę łączącą tabele Optimy z fakturami z fakturowni.
 4. DONE - Aktualizacja danych na fakturach w fakturowni (zapisanie w optimie id faktury i pozycji), zabezpieczenie, aby nie modyfikować już rozliczonych faktur (niebieskie w Optimie). Pole VaN_DekID wiąże fakturę z CDN.DekretyNag i jeżeli istnieje powiązane,
    to należy taką fakturę pozostawić już w spokoju (integrator nie powinien jej dotykać)
-5. Przypisywanie kategorii (VaN_KatID, VaN_Kategoria)
-6. Obsługa faktur korygujących (VaN_DokumentyNadrzedne, VaN_KorektaDo, VaN_Korekta)
-7. Dołożyć tabele CDN.Kontrhenci_fakturownia, aby połączyć fakturowniany client_id z comarchowym Knt_KntId, aby obsłużyć w pełni aktualizowanie danych kontrahenta, bo teraz w zasadzie aktualizowanie kontrahenta nigdy się nie wykonuje, choć kod skryptu kontrahent.php przewiduje taką sytuację (tylko jeżeli klient ma w fakturowni wprowadzony NIP)
+5. Obsługa faktur korygujących (VaN_DokumentyNadrzedne, VaN_KorektaDo, VaN_Korekta)
+6. Przypisywanie kategorii (VaN_KatID, VaN_Kategoria)
+7. Znaleźć miejsce do przechowywania w bazie optimy client_id pochodzący z fakturowni, aby obsłużyć w pełni aktualizowanie danych kontrahenta, bo teraz w zasadzie aktualizowanie kontrahenta nigdy się nie wykonuje, choć kod skryptu kontrahent.php przewiduje taką sytuację (tylko jeżeli klient ma w fakturowni wprowadzony NIP)
 
 ## Changelog
 
