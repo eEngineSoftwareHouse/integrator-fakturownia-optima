@@ -56,7 +56,7 @@ try {
 
 
     if ($VatNag && (int)$VatNag['VaN_DekID'] > 0) {           # Faktura istnieje i NIE można jej usunąć (została wysłana do US)
-        echo "{$database}: faktura numer: {$inv['number']} ({$inv['id']}) zablokowana - wysłana do US";
+        echo "{$database}: faktura numer: {$inv['number']} ({$inv['id']}) zablokowana - wysłana do US\n";
     }
     else {                                                    # Faktura do usunięcia, będzie aktualizacja      
         $dbSqlServer->delete('CDN.VatNag', [
