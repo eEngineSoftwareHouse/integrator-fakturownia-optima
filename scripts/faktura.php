@@ -335,10 +335,15 @@ try {
     /* ---------- 4.  Pozycje VAT (VatTab) ---------- */
     $lp = 1;                                    // numeracja pozycji w deklaracji
 
-    foreach ($positions as $p) {
-        $vat_rate = ($p['price_gross'] - $p['price_net']) / $p['price_net'];
-        $netto = ($p['price_net'] - (float)$p['discount_net']) * $p['quantity'] * $inv['exchange_rate'];
-        $vat   = $netto * $vat_rate;    // VAT pozycji
+    foreach ($positions as $p) 
+    {
+        if ($p['total_price_gross'] == 0) continue;
+
+        $vat_rate = round(($p['price_gross'] - $p['price_net']) / $p['price_net'], 2);
+        $netto = round(($p['price_net'] - (float)$p['discount_net']) * $p['quantity'] * $inv['exchange_rate'], 2);
+        $vat   = round($netto * $vat_rate, 2);    // VAT pozycji
+
+        // dbg([$vat_rate, $netto, $vat]);
 
         /* stawka symboliczna zgodna z Optimą */
         $stawkaSymbol = $p['vat_rate'] == 0.0
