@@ -35,6 +35,8 @@ if (!$database = $companies[$nip]['DATABASE']) {
 // dbg($database);return;
 $dbSqlServer->pdo->exec("USE [{$database}];");
 
+$now = Medoo\Medoo::raw('GETDATE()');
+
 $positions = $inv['positions'] ?? [];
 foreach ($positions as &$p) {
     $t = strtolower(trim($p['tax'] ?? ''));
@@ -56,7 +58,16 @@ try {
 
 
     if ($VatNag && (int)$VatNag['VaN_DekID'] > 0) {           # Faktura istnieje i NIE można jej usunąć (została wysłana do US)
-        echo "{$database}: faktura numer: {$inv['number']} ({$inv['id']}) zablokowana - wysłana do US\n";
+        echo "{$database}: Faktura numer: {$inv['number']} ({$inv['id']}) zablokowana - wysłana do US\n";
+
+        $dbSqlServer->update(
+            "CDN.VatNag", 
+            [ "VaN_TS_Mod" => date('Y-m-d H:i:s', strtotime($inv['updated_at'])) ],
+            [ "VaN_AppID" => $inv['id']]
+        );
+
+        $dbSqlServer->pdo->commit();
+        exit(0);
     }
     else {                                                    # Faktura do usunięcia, będzie aktualizacja      
         $dbSqlServer->delete('CDN.VatNag', [
@@ -125,7 +136,8 @@ try {
         'VaN_PodId'     => $kntId
     ]);
     // dbg($VaN_VaNID);return;
-    if ($VaN_VaNID ?: 0) {
+    if ($VaN_VaNID ?: 0) 
+    {
         echo "{$database}: Faktura {$inv['number']} wprowadzona poza integratorem – pomijam.\n";
         return;
     }
@@ -139,8 +151,6 @@ try {
             'VaN_DataObowiazkuPodatkowego[<>]'    => [$start, $end]
         ]) ?: 0) + 1;
 
-
-    $now = Medoo\Medoo::raw('GETDATE()');
     $rokMies = (int)date('Ym', strtotime($sellDate));
     $razemNetto  = $inv['price_net'] * $inv['exchange_rate'];
     $razemVat    = ($inv['price_gross'] - $inv['price_net']) * $inv['exchange_rate'];
