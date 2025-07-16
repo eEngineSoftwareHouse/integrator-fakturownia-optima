@@ -39,7 +39,7 @@ foreach([0, 1] as $income) {
 
                 $dbSqlServer->pdo->exec("USE [{$companies[$nip]['DATABASE']}];");
 
-                $updated_at_in_optima = $dbSqlServer->get("CDN.VatNag_fakturownia", 'fakturownia_updated_at', [ 'fakturownia_invoice_id' => $faktura["id"] ]) ?: date('Y-m-d', strtotime($companies[$nip]['beginning_date'])-86400);
+                $updated_at_in_optima = $dbSqlServer->get("CDN.VatNag", 'VaN_TS_Mod', [ 'VaN_AppID' => $faktura["id"] ]) ?: date('Y-m-d', strtotime($companies[$nip]['beginning_date'])-86400);
 
                 // dbg([ date('Y-m-d H:i:s', strtotime($faktura['updated_at'])), date('Y-m-d H:i:s', strtotime($updated_at_in_optima)) ]);
                 if (

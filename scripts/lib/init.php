@@ -6,6 +6,8 @@ require 'MedooMssql.php';
 use Medoo\Medoo;
 use Integrator\MedooMssql;
 
+date_default_timezone_set('Europe/Warsaw');
+
 $domain   = getenv('FAKTUROWNIA_DOMAIN')      ?: '';
 $apiToken = getenv('FAKTUROWNIA_API_TOKEN')   ?: '';
 $faktPageLimit = getenv('FAKTUROWNIA_INVOICE_PAGE_LIMIT') ?: 1;

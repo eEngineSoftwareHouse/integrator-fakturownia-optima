@@ -99,14 +99,20 @@ Projekt udostępniany jest na licencji MIT. Szczegóły w pliku `LICENSE`.
 
 1. DONE - Obsługa faktur walutowych (do weryfikacji)
 2. DONE - Tworzenie kontrahentów i ich aktualizacja(?)
-3. Brakuje kodu dodającego tabelę łączącą tabele Optimy z fakturami z fakturowni.
-4. Aktualizacja danych na fakturach w fakturowni (zapisanie w optimie id faktury i pozycji), zabezpieczenie, aby nie modyfikować już rozliczonych faktur (niebieskie w Optimie). Pole VaN_DekID wiąże fakturę z CDN.DekretyNag i jeżeli istnieje powiązane,
+3. DONE (już zbędne) - Brakuje kodu dodającego tabelę łączącą tabele Optimy z fakturami z fakturowni.
+4. DONE - Aktualizacja danych na fakturach w fakturowni (zapisanie w optimie id faktury i pozycji), zabezpieczenie, aby nie modyfikować już rozliczonych faktur (niebieskie w Optimie). Pole VaN_DekID wiąże fakturę z CDN.DekretyNag i jeżeli istnieje powiązane,
    to należy taką fakturę pozostawić już w spokoju (integrator nie powinien jej dotykać)
 5. Przypisywanie kategorii (VaN_KatID, VaN_Kategoria)
 6. Obsługa faktur korygujących (VaN_DokumentyNadrzedne, VaN_KorektaDo, VaN_Korekta)
 7. Dołożyć tabele CDN.Kontrhenci_fakturownia, aby połączyć fakturowniany client_id z comarchowym Knt_KntId, aby obsłużyć w pełni aktualizowanie danych kontrahenta, bo teraz w zasadzie aktualizowanie kontrahenta nigdy się nie wykonuje, choć kod skryptu kontrahent.php przewiduje taką sytuację (tylko jeżeli klient ma w fakturowni wprowadzony NIP)
 
 ## Changelog
+
+### 0.2
+
+- Eliminacja dodatkowej tabeli przechowującej połączenie fakturownia_id <> VaN_VaNID. Wykorzystano pole CDN.VatNag.VaN_AppID
+- Dodano aktualizację pozycji w rejestrze VAT w Optimie, gdy faktura w fakturowni ulega zmianie (wykorzstano pole CDN.VatNag.VaN_AppID do zapisu fakturownia_id). Aktualizacja odbywa się poprzez usunięcie wpisów w VatNag i odpowiadającym mu VatTab i utworzenie nowych. Usuwanie/aktualizacja nie następuje, gdy pole CDN.VaN_DekID jest różne od NULL, co oznacza, że dokument został już wysłany do US.
+- Dodano obsługę rabatów w pozycjach na fakturze.
 
 ### 0.1
 
