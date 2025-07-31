@@ -11,6 +11,7 @@ services:
     volumes:
       - ./scripts:/usr/src/app
     command: ["tail", "-f", "/dev/null"]
+    restart: unless-stopped
 
 
 
