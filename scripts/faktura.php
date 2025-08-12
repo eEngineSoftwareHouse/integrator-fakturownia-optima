@@ -349,8 +349,12 @@ try {
     {
         if ($p['total_price_gross'] == 0) continue;
 
-        $vat_rate = round(($p['price_gross'] - $p['price_net']) / $p['price_net'], 2);
-        $netto = round(($p['price_net'] - (float)$p['discount_net']) * $p['quantity'] * $inv['exchange_rate'], 2);
+        // $razemNetto  = $inv['price_net'] * $inv['exchange_rate'];
+        // $razemVat    = ($inv['price_gross'] - $inv['price_net']) * $inv['exchange_rate'];
+        // $razemBrutto = $inv['price_gross'] * $inv['exchange_rate'];
+
+        $vat_rate = round(($p['total_price_gross'] - $p['total_price_net']) / $p['total_price_net'], 2);
+        $netto = round(($p['total_price_net'] - $p['discount_net']) * $inv['exchange_rate'], 2);
         $vat   = round($netto * $vat_rate, 2);    // VAT pozycji
 
         // dbg([$vat_rate, $netto, $vat]);
