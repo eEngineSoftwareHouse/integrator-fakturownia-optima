@@ -355,7 +355,7 @@ try {
 
         $vat_rate = round(($p['total_price_gross'] - $p['total_price_net']) / $p['total_price_net'], 2);
         $netto = round(($p['total_price_net'] - $p['discount_net']) * $inv['exchange_rate'], 2);
-        $vat   = round($netto * $vat_rate, 2);    // VAT pozycji
+        $vat   = round((($p['total_price_gross'] - $p['discount']) - ($p['total_price_net'] - $p['discount_net'])) * $inv['exchange_rate'], 2);
 
         // dbg([$vat_rate, $netto, $vat]);
 
