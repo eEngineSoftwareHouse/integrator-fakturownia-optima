@@ -95,10 +95,35 @@ try {
     $clientId  = $inv['client_id'] ?? '';              // IdKlienta (gdy brak NIP)
 
     // $kindList = ['final', 'vat'];
-    $kindList = ['vat'];
+    $kindList = ['vat', 'correction'];
+    // $kindList = [ 'vat' ];
     if (!in_array($kind, $kindList, true)) {
+        // dbg($inv);
         echo "{$database}: Faktura {$inv['number']} jest typu {$kind}\n";
         return;                                        // zmieniono rodzaj lub NIP sprzedawcy
+    }
+
+    if ($kind == 'correction') {
+
+        $url  = "https://{$domain}/invoices/{$inv['from_invoice_id']}.json?api_token={$apiToken}";
+        $json = @file_get_contents($url);
+        if ($json === false) {
+            echo "Nie udało się pobrać faktury z: $url\n";
+            exit(1);
+        }
+
+        $invBase = json_decode($json, true);
+        if ($invBase['id'] != $inv['from_invoice_id']) {
+            echo "Błędna odpowiedź JSON z Fakturowni\n";
+            exit(1);
+        }
+
+        // dbg($invBase);
+        // dbg($inv);
+        // dbg($inv['from_invoice_id']);
+        // exit;
+
+        // if ($inv['number'] != 'PLKOR/1/08/2025') exit;
     }
 
     /* wybór rejestru i kontrahenta */
@@ -211,8 +236,8 @@ try {
             /* dokumenty */
             'VaN_Dokument'          => $inv['number'],
             'VaN_DokumentyNadrzedne'=> null,
-            'VaN_KorektaDo'         => '',
-            'VaN_Korekta'           => 0,
+            'VaN_KorektaDo'         => ($kind == 'correction' ? $invBase['number'] : ""),
+            'VaN_Korekta'           => ($kind == 'correction' ? 1 : 0),
             'VaN_Fiskalna'          => 0,
             'VaN_KorektaVAT'        => 0,
             'VaN_Detal'             => 0,
@@ -347,13 +372,18 @@ try {
 
     foreach ($positions as $p) 
     {
-        if ($p['total_price_gross'] == 0) continue;
+        // dbg($p);
+        if ($p['total_price_gross'] == 0 && $p['discount'] == 0) continue;
 
         // $razemNetto  = $inv['price_net'] * $inv['exchange_rate'];
         // $razemVat    = ($inv['price_gross'] - $inv['price_net']) * $inv['exchange_rate'];
         // $razemBrutto = $inv['price_gross'] * $inv['exchange_rate'];
 
-        $vat_rate = round(($p['total_price_gross'] - $p['total_price_net']) / $p['total_price_net'], 2);
+        if ($p['total_price_gross'] != 0)
+            $vat_rate = round(($p['total_price_gross'] - $p['total_price_net']) / $p['total_price_net'], 2);
+        else
+            $vat_rate = round(($p['discount'] - $p['discount_net']) / $p['discount_net'], 2);
+
         $netto = round(($p['total_price_net'] - $p['discount_net']) * $inv['exchange_rate'], 2);
         $vat   = round((($p['total_price_gross'] - $p['discount']) - ($p['total_price_net'] - $p['discount_net'])) * $inv['exchange_rate'], 2);
 
@@ -366,9 +396,9 @@ try {
 
         $dbSqlServer->insert('CDN.VatTab', [
             'VaT_VaNID'        => $vnId,             // FK do nagłówka
-            'VaT_Stawka'       => $p['vat_rate'],    // 23.00 / 8.00 / 0.00
+            'VaT_Stawka'       => $vat_rate * 100,    // 23.00 / 8.00 / 0.00
             'VaT_Flaga'        => $p['vat_flag'],    // 1=zw, 2=liczb., 4=np
-            'VaT_Zrodlowa'     => $p['vat_rate'],    // integrator kopiuje stawkę
+            'VaT_Zrodlowa'     => $vat_rate * 100,    // integrator kopiuje stawkę
             'VaT_RodzajZakupu' => 4,                 // zgodnie z C# (sprzedaż)
             'VaT_Odliczenia'   => 1,                 // brak częściowego odliczania
             'VaT_Netto'        => $netto,
