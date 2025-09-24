@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     platform: linux/amd64
-    container_name: integrator_php
+#    container_name: integrator_php
     env_file: .env                         
     working_dir: /usr/src/app
     user: "${HOST_UID}:${HOST_GID}"
