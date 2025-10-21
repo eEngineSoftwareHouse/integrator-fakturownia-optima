@@ -64,6 +64,8 @@ try {
     // dbg($sql);
     $kntId_new = $stmt->execute($params);
 
+    echo "{$database}: Próba dodania kontrahenta client_id {$client_id} (NIP: {$nip['pure']})\n";
+
     if ($kntId_new > 0) {
         $dbSqlServer->update(
                 "CDN.Kontrahenci",
