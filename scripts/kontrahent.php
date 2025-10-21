@@ -59,17 +59,23 @@ $params = [
 
 // dbg($params);
 
-$stmt = $dbSqlServer->pdo->prepare($sql);
-// dbg($sql);
-$kntId_new = $stmt->execute($params);
+try {
+    $stmt = $dbSqlServer->pdo->prepare($sql);
+    // dbg($sql);
+    $kntId_new = $stmt->execute($params);
 
-if ($kntId_new > 0)
-{
-    $dbSqlServer->update(
-            "CDN.Kontrahenci", 
-            [ "Knt_TelefonSms" => $client_id ],
-            [ "Knt_KntId" => $kntId_new]
-        );
+    if ($kntId_new > 0)
+    {
+        $dbSqlServer->update(
+                "CDN.Kontrahenci", 
+                [ "Knt_TelefonSms" => $client_id ],
+                [ "Knt_KntId" => $kntId_new]
+            );
+    }
+} catch (PDOException $e) {
+    $details = $e->getMessage();
+    echo "{$database}: Błąd dodawania kontrahenta dla client_id {$client_id} (NIP: {$nip['pure']}): {$details}\n";
+    exit(1);
 }
 
 if ($kntId == 0)
