@@ -379,13 +379,20 @@ try {
         // $razemVat    = ($inv['price_gross'] - $inv['price_net']) * $inv['exchange_rate'];
         // $razemBrutto = $inv['price_gross'] * $inv['exchange_rate'];
 
-        if ($p['total_price_gross'] != 0)
-            $vat_rate = round(($p['total_price_gross'] - $p['total_price_net']) / $p['total_price_net'], 2);
-        else
-            $vat_rate = round(($p['discount'] - $p['discount_net']) / $p['discount_net'], 2);
+        $totalNet      = (float)$p['total_price_net'];
+        $totalGross    = (float)$p['total_price_gross'];
+        $discountNet   = (float)$p['discount_net'];
+        $discountGross = (float)$p['discount'];
 
-        $netto = round(($p['total_price_net'] - $p['discount_net']) * $inv['exchange_rate'], 2);
-        $vat   = round((($p['total_price_gross'] - $p['discount']) - ($p['total_price_net'] - $p['discount_net'])) * $inv['exchange_rate'], 2);
+        $vat_rate = round(((float)$p['vat_rate']) / 100, 2);
+        if (abs($totalNet) > 0.00001) {
+            $vat_rate = round(($totalGross - $totalNet) / $totalNet, 2);
+        } elseif (abs($discountNet) > 0.00001) {
+            $vat_rate = round(($discountGross - $discountNet) / $discountNet, 2);
+        }
+
+        $netto = round(($totalNet - $discountNet) * $inv['exchange_rate'], 2);
+        $vat   = round((($totalGross - $discountGross) - ($totalNet - $discountNet)) * $inv['exchange_rate'], 2);
 
         // dbg([$vat_rate, $netto, $vat]);
 
@@ -436,6 +443,5 @@ try {
     echo "{$database}: Błąd zapisu do Optimy: {$e->getMessage()}\n";
     exit(1);
 }
-
 
 
