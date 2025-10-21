@@ -385,6 +385,12 @@ try {
         $discountGross = (float)$p['discount'];
 
         $vat_rate = round(((float)$p['vat_rate']) / 100, 2);
+        if (abs($discountNet) <= 0.00001 && abs($discountGross) > 0.00001) {
+            $discountNet = abs($vat_rate) > 0.00001
+                ? round($discountGross / (1 + $vat_rate), 2)
+                : round($discountGross, 2);
+        }
+
         if (abs($totalNet) > 0.00001) {
             $vat_rate = round(($totalGross - $totalNet) / $totalNet, 2);
         } elseif (abs($discountNet) > 0.00001) {
@@ -443,5 +449,3 @@ try {
     echo "{$database}: Błąd zapisu do Optimy: {$e->getMessage()}\n";
     exit(1);
 }
-
-
