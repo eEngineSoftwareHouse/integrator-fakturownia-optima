@@ -64,13 +64,17 @@ try {
     // dbg($sql);
     $kntId_new = $stmt->execute($params);
 
-    if ($kntId_new > 0)
-    {
+    if ($kntId_new > 0) {
         $dbSqlServer->update(
-                "CDN.Kontrahenci", 
+                "CDN.Kontrahenci",
                 [ "Knt_TelefonSms" => $client_id ],
                 [ "Knt_KntId" => $kntId_new]
             );
+    } else {
+        $errorInfo = $stmt->errorInfo();
+        $errorMsg = $errorInfo[2] ?? 'Nieznany błąd wykonania procedury';
+        echo "{$database}: Nie udało się dodać/aktualizować kontrahenta client_id {$client_id} (NIP: {$nip['pure']}): {$errorMsg}\n";
+        exit(1);
     }
 } catch (PDOException $e) {
     $details = $e->getMessage();
